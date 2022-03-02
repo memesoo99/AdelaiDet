@@ -10,6 +10,10 @@ from .datasets.text import register_text_instances
 _PREDEFINED_SPLITS_PIC = {
     "pic_person_train": ("pic/image/train", "pic/annotations/train_person.json"),
     "pic_person_val": ("pic/image/val", "pic/annotations/val_person.json"),
+    # "grape_train" :("/workspace/grape_label/coco/images","/workspace/grape_label/coco/train_annotations.json"),
+    # "grape_val":("/workspace/grape_label/coco/images","/workspace/grape_label/coco/val_annotations.json"),
+    # "plant_train":("/workspace/PlantDoc-Object-Detection-Dataset/plant_annotations_train.json", "/workspace/PlantDoc-Object-Detection-Dataset/TRAIN"),
+    # "plant_val":("/workspace/PlantDoc-Object-Detection-Dataset/plant_annotations_test.json","/workspace/PlantDoc-Object-Detection-Dataset/TEST"),
 }
 
 metadata_pic = {

@@ -59,7 +59,8 @@ if __name__ == "__main__":
 
     def output(vis, fname):
         if args.show:
-            print(fname)
+
+
             cv2.imshow("window", vis.get_image()[:, :, ::-1])
             cv2.waitKey()
         else:

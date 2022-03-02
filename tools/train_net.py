@@ -1,4 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+# python tools/train_net.py --config-file configs/BoxInst/MS_R_50_1x.yaml --num-gpus 0 OUTPUT_DIR training_dir/BoxInst_MS_R_50_1x
+# python tools/train_net.py --config-file configs/BoxInst/MS_R_50_1x.yaml --eval-only --num-gpus 0 OUTPUT_DIR ./viz MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x/model_final.pth
 """
 Detection Training Script.
 
@@ -16,15 +18,17 @@ You may want to write your own script with your datasets and other customization
 """
 
 import logging
+# import wandb
 import os
 from collections import OrderedDict
 import torch
 from torch.nn.parallel import DistributedDataParallel
-
+from detectron2.data.datasets.coco import MetadataCatalog, DatasetCatalog
 import detectron2.utils.comm as comm
 from detectron2.data import MetadataCatalog, build_detection_train_loader
 from detectron2.engine import DefaultTrainer, default_argument_parser, default_setup, hooks, launch
 from detectron2.utils.events import EventStorage
+from detectron2.data.datasets import register_coco_instances
 from detectron2.evaluation import (
     COCOEvaluator,
     COCOPanopticEvaluator,
@@ -43,6 +47,7 @@ from adet.config import get_cfg
 from adet.checkpoint import AdetCheckpointer
 from adet.evaluation import TextEvaluator
 
+# wandb.init(project="grape_segmentation")
 
 class Trainer(DefaultTrainer):
     """
@@ -184,6 +189,11 @@ def setup(args):
     Create configs and perform basic setups.
     """
     cfg = get_cfg()
+    # register_coco_instances("grape_train", {}, image_root = "/workspace/grape_label/coco/images", json_file="/workspace/grape_label/coco/train_annotations.json")
+    # register_coco_instances("grape_val", {}, image_root="/workspace/grape_label/coco/images", json_file="/workspace/grape_label/coco/val_annotations.json") 
+    #####################
+    cfg.DATASETS.TRAIN = ('grape_train',)
+    cfg.DATASETS.TEST = ('grape_val',)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     cfg.freeze()
@@ -191,11 +201,14 @@ def setup(args):
 
     rank = comm.get_rank()
     setup_logger(cfg.OUTPUT_DIR, distributed_rank=rank, name="adet")
-
     return cfg
 
 
 def main(args):
+    register_coco_instances("grape_train", {}, image_root = "/workspace/grape_label/coco/images", json_file="/workspace/grape_label/coco/train_annotations.json")
+    register_coco_instances("grape_val", {}, image_root="/workspace/grape_label/coco/images", json_file="/workspace/grape_label/coco/val_annotations.json")
+    register_coco_instances("plant_train", {}, json_file="/workspace/PlantDoc-Object-Detection-Dataset/plant_annotations_train.json", image_root="/workspace/PlantDoc-Object-Detection-Dataset/TRAIN")
+    register_coco_instances("plant_val", {}, json_file="/workspace/PlantDoc-Object-Detection-Dataset/plant_annotations_test.json", image_root="/workspace/PlantDoc-Object-Detection-Dataset/TEST")
     cfg = setup(args)
 
     if args.eval_only:

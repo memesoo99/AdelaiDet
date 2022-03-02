@@ -1,0 +1,19 @@
+
+Command Line Args: Namespace(config_file='configs/BoxInst/MS_R_50_1x.yaml', dist_url='tcp://127.0.0.1:49152', eval_only=False, machine_rank=0, num_gpus=0, num_machines=1, opts=['OUTPUT_DIR', './viz', '--opts', 'MODEL.WEIGHTS', '/workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x/model_final.pth', '--eval_only'], resume=False)
+Config 'configs/BoxInst/MS_R_50_1x.yaml' has no VERSION. Assuming it to be compatible with latest v2.
+Traceback (most recent call last):
+  File "tools/train_net.py", line 242, in <module>
+    launch(
+  File "/opt/conda/lib/python3.8/site-packages/detectron2/engine/launch.py", line 82, in launch
+    main_func(*args)
+  File "tools/train_net.py", line 212, in main
+    cfg = setup(args)
+  File "tools/train_net.py", line 198, in setup
+    cfg.merge_from_list(args.opts)
+  File "/opt/conda/lib/python3.8/site-packages/fvcore/common/config.py", line 143, in merge_from_list
+    return super().merge_from_list(cfg_list)
+  File "/opt/conda/lib/python3.8/site-packages/yacs/config.py", line 243, in merge_from_list
+    _assert_with_logging(subkey in d, "Non-existent key: {}".format(full_key))
+  File "/opt/conda/lib/python3.8/site-packages/yacs/config.py", line 545, in _assert_with_logging
+    assert cond, msg
+AssertionError: Non-existent key: --opts

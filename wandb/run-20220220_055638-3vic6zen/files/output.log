@@ -1,0 +1,4 @@
+usage: train_net.py [-h] [--config-file FILE] [--resume] [--eval-only] [--num-gpus NUM_GPUS] [--num-machines NUM_MACHINES]
+                    [--machine-rank MACHINE_RANK] [--dist-url DIST_URL]
+                    ...
+train_net.py: error: unrecognized arguments: --eval_only

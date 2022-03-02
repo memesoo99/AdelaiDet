@@ -1,4 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+# python demo/demo.py --input /workspace/PlantDoc-Object-Detection-Dataset/TEST/vaccinium-angustifolium-low-bush-blueberry_0830_124221.jpg --output viz --opts MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_plant3/model_0004999.pth --output-csv-config /workspace/AdelaiDet/config_csv.yaml
+# python demo/demo.py --input /workspace/grape_label/test/9.png /workspace/grape_label/test/10.png --output viz/grape_from_real --opts MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x/model_final.pth --output-csv-config /workspace/AdelaiDet/config_csv.yaml
+
 import argparse
 import glob
 import multiprocessing as mp
@@ -6,6 +9,8 @@ import os
 import time
 import cv2
 import tqdm
+import csv
+import configparser
 
 from detectron2.data.detection_utils import read_image
 from detectron2.utils.logger import setup_logger
@@ -17,9 +22,11 @@ from adet.config import get_cfg
 WINDOW_NAME = "COCO detections"
 
 
+
 def setup_cfg(args):
     # load config from file and command-line arguments
     cfg = get_cfg()
+    args.config_file = '/workspace/AdelaiDet/configs/BoxInst/MS_R_50_1x.yaml'
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     # Set score_threshold for builtin models
@@ -43,6 +50,7 @@ def get_parser():
     parser.add_argument("--webcam", action="store_true", help="Take inputs from webcam.")
     parser.add_argument("--video-input", help="Path to video file.")
     parser.add_argument("--input", nargs="+", help="A list of space separated input images")
+
     parser.add_argument(
         "--output",
         help="A file or directory to save output visualizations. "
@@ -61,15 +69,40 @@ def get_parser():
         default=[],
         nargs=argparse.REMAINDER,
     )
+    parser.add_argument(
+        "--output-csv-config",
+        help="output file path and number of instances as csv",
+        default = '/workspace/AdelaiDet/config_csv.yaml'
+    )
+    parser.add_argument(
+        "--code",
+        help="the name of the report",
+        default='result_demo_0225'
+    )
     return parser
 
 
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
+    csv_cfg = configparser.ConfigParser()  ## 클래스 객체 생성
+    csv_cfg.read(args.output_csv_config)
+    args.output = './viz'
+    # csv_output_folder = f'./viz/results/{args.code}.csv'
+    csv_output_folder = csv_cfg.get("DEFAULT","OUTPUT_FOLDER")
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
-
+    csv_true = False
+    if csv_cfg.get("DEFAULT", "OUTPUT"):
+        f = open(csv_output_folder,'w', newline='')
+        wr = csv.writer(f)
+        csv_true = True
+    mask_true = False
+    if csv_cfg.get("DEFAULT","MASK"):
+        mask_true = True
+    path_true = False
+    if csv_cfg.get("DEFAULT", "IMAGE_PATH"):
+        path_true = True
     cfg = setup_cfg(args)
 
     demo = VisualizationDemo(cfg)
@@ -80,11 +113,22 @@ if __name__ == "__main__":
         elif len(args.input) == 1:
             args.input = glob.glob(os.path.expanduser(args.input[0]))
             assert args.input, "The input path(s) was not found"
+
         for path in tqdm.tqdm(args.input, disable=not args.output):
             # use PIL, to be consistent with evaluation
             img = read_image(path, format="BGR")
             start_time = time.time()
-            predictions, visualized_output = demo.run_on_image(img)
+            predictions, visualized_output, mask = demo.run_on_image(img)
+            # mask -> unit8 binary mask for every instances. 만약 class가 여러개라면 pred_claass도 같이 받아야함. 1 인 부분이 class
+
+            img_path = path
+            instance_num = len(predictions["instances"])
+            row = []
+            if csv_true:
+                row.append(path)
+                row.append(instance_num)
+            if mask_true:
+                row.append(mask)
             logger.info(
                 "{}: detected {} instances in {:.2f}s".format(
                     path, len(predictions["instances"]), time.time() - start_time
@@ -99,10 +143,21 @@ if __name__ == "__main__":
                     assert len(args.input) == 1, "Please specify a directory with args.output"
                     out_filename = args.output
                 visualized_output.save(out_filename)
+                if path_true:
+                    row.append(out_filename)
             else:
                 cv2.imshow(WINDOW_NAME, visualized_output.get_image()[:, :, ::-1])
                 if cv2.waitKey(0) == 27:
                     break  # esc to quit
+            wr.writerow(row)
+        f.close()
+        logger.info(
+                "report saved to {}".format(
+                    csv_output_folder
+                )
+            )
+            
+
     elif args.webcam:
         assert args.input is None, "Cannot have both --input and --webcam!"
         cam = cv2.VideoCapture(0)
