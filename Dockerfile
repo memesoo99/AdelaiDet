@@ -26,7 +26,7 @@ RUN bash -c "source /root/anaconda3/etc/profile.d/conda.sh && conda activate bas
 
 RUN rm /root/Anaconda3-2020.07-Linux-x86_64.sh
 
-RUN "pip3 install opencv-python && pip3 install json"
+RUN bash -c "pip3 install opencv-python"
 
 FROM python:3
 ADD main.py /
