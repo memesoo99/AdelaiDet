@@ -16,7 +16,7 @@ WORKDIR /root
 RUN mkdir code
 WORKDIR code
 
-RUN git clone https://github.com/facebookresearch/detectron2.git
+RUN git clone https://github.com/lazybuttrying/detectron2.git
 RUN bash -c "source /root/anaconda3/etc/profile.d/conda.sh && conda activate base && cd detectron2 && python setup.py build develop"
 
 RUN git clone https://github.com/lazybuttrying/AdelaiDet.git adet
