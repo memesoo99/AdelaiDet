@@ -25,3 +25,7 @@ WORKDIR adet
 RUN bash -c "source /root/anaconda3/etc/profile.d/conda.sh && conda activate base && python setup.py build develop"
 
 RUN rm /root/Anaconda3-2020.07-Linux-x86_64.sh
+
+FROM python:3
+ADD main.py /
+CMD ["python", "./main.py"]
