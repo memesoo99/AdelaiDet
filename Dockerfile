@@ -1,7 +1,7 @@
 FROM nvidia/cuda:10.2-devel-ubuntu18.04
  
 RUN apt update && apt install -y libglib2.0-0 && apt clean
-RUN apt install -y wget gcc-7 g++-7 vim curl git libsm6 libgl1-mesa-glx libxext6 libxrender-dev lsb-core libglib2.0-0 libjpeg-dev zlib1g-dev software-properties-common
+RUN apt install -y wget gcc-7 g++-7 vim curl git libsm6 libgl1-mesa-glx libxext6 libxrender-dev lsb-core libglib2.0-0 libjpeg-dev zlib1g-dev software-properties-common && apt clean
 RUN add-apt-repository ppa:deadsnakes/ppa
 ARG DEBIAN_FRONTEND=noninterative
 RUN apt install -y python3.9 python3.9-distutils python3.9-dev libpython3.9-dev python3-setuptools
@@ -22,5 +22,5 @@ WORKDIR adet
 RUN python3.9 setup.py build develop
 RUN wget -P ./training_dir/BoxInst_MS_R_50_1x/ https://modelfiles-bucket.s3.ap-northeast-2.amazonaws.com/model_final.pth
 
-RUN pip install opencv-python skimage fastapi pydantic uvicorn
+RUN pip install opencv-python scikit-image fastapi pydantic uvicorn
 # fastapi>=0.68.0 pydantic>=1.8.0 uvicorn>=0.15.0
