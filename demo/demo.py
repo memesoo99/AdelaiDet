@@ -26,7 +26,7 @@ WINDOW_NAME = "COCO detections"
 def setup_cfg(args):
     # load config from file and command-line arguments
     cfg = get_cfg()
-    args.config_file = '/workspace/AdelaiDet/configs/BoxInst/MS_R_50_1x.yaml'
+    args.config_file = './configs/BoxInst/MS_R_50_1x.yaml'
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     # Set score_threshold for builtin models
@@ -72,12 +72,12 @@ def get_parser():
     parser.add_argument(
         "--output-csv-config",
         help="output file path and number of instances as csv",
-        default = '/workspace/AdelaiDet/config_csv.yaml'
+        default = './config_csv.yaml'
     )
     parser.add_argument(
         "--code",
         help="the name of the report",
-        default='result_demo_0225'
+        default='result0228'
     )
     return parser
 
@@ -88,21 +88,15 @@ if __name__ == "__main__":
     csv_cfg = configparser.ConfigParser()  ## 클래스 객체 생성
     csv_cfg.read(args.output_csv_config)
     args.output = './viz'
-    # csv_output_folder = f'./viz/results/{args.code}.csv'
-    csv_output_folder = csv_cfg.get("DEFAULT","OUTPUT_FOLDER")
+    csv_output_folder = f'./viz/results/{args.code}.csv'
+    #csv_output_folder = csv_cfg.get("DEFAULT","OUTPUT_FOLDER")
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
-    csv_true = False
-    if csv_cfg.get("DEFAULT", "OUTPUT"):
-        f = open(csv_output_folder,'w', newline='')
-        wr = csv.writer(f)
-        csv_true = True
-    mask_true = False
-    if csv_cfg.get("DEFAULT","MASK"):
-        mask_true = True
-    path_true = False
-    if csv_cfg.get("DEFAULT", "IMAGE_PATH"):
-        path_true = True
+    f = open(csv_output_folder,'w', newline='')
+    wr = csv.writer(f)
+    csv_true = True
+    mask_true = True
+    path_true = True
     cfg = setup_cfg(args)
 
     demo = VisualizationDemo(cfg)
