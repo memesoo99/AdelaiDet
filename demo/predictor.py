@@ -17,7 +17,9 @@ from detectron2.data import MetadataCatalog
 # from detectron2.engine.defaults import DefaultPredictor
 from detectron2.utils.video_visualizer import VideoVisualizer
 from detectron2.utils.visualizer import ColorMode, Visualizer
-# 이 위에 코드 살펴봐야 result어떻게 활용하ㄴ지 알수 있을듯
+
+import sys
+sys.path.append("/root/code/adet/")
 from adet.utils.visualizer import TextVisualizer
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 
