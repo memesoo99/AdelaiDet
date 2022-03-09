@@ -22,5 +22,5 @@ WORKDIR adet
 RUN python3.9 setup.py build develop
 RUN wget -P ./training_dir/BoxInst_MS_R_50_1x/ https://modelfiles-bucket.s3.ap-northeast-2.amazonaws.com/model_final.pth
 
-RUN pip install opencv-python scikit-image fastapi pydantic uvicorn
-# fastapi>=0.68.0 pydantic>=1.8.0 uvicorn>=0.15.0
+COPY ./requirements.txt ./requirements.txt
+RUN python3.9 -m  pip install --no-cache-dir --upgrade -r ./requirements.txt
