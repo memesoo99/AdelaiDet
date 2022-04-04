@@ -1,6 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import numpy as np
 import json
+import imageio
 import atexit
 import bisect
 import multiprocessing as mp
@@ -11,6 +12,7 @@ import matplotlib.pyplot as plt
 import detectron2.data.transforms as T
 import pickle
 import pandas as pd
+import pycocotools.mask as maskutil
 
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.modeling import build_model
@@ -46,7 +48,7 @@ class VisualizationDemo(object):
         else:
             self.predictor = DefaultPredictor(cfg)
 
-    def run_on_image(self, image):
+    def run_on_image(self, image, image_path, mask_path):
         """
         Args:
             image (np.ndarray): an image of shape (H, W, C) (in BGR order).
@@ -56,9 +58,12 @@ class VisualizationDemo(object):
             predictions (dict): the output of the model.
             vis_output (VisImage): the visualized image output.
         """
+        image_name = image_path.split('/')[-1].split('.')[0]
         vis_output = None
 
         predictions = self.predictor(image)
+    
+        # print(type(predictions))
         
         # Convert image from OpenCV BGR format to Matplotlib RGB format.
         image = image[:, :, ::-1]
@@ -81,11 +86,21 @@ class VisualizationDemo(object):
             if "instances" in predictions: #############
                 instances = predictions["instances"].to(self.cpu_device)
                 vis_output, mask = visualizer.draw_instance_predictions(predictions=instances)
+                pred_classes = instances.pred_classes
+                masks = []
+                # temp = []
+                # first_mask = mask[0].mask
+                for i in range(len(mask)):
+                    masks.append(mask[i].mask)
+                mask_n_class = [masks, torch.count_nonzero(pred_classes).item()]
+                # print(mask_n_class[1])
+                print(len(masks))
                 # https://github.com/facebookresearch/detectron2/blob/cbbc1ce26473cb2a5cc8f58e8ada9ae14cb41052/detectron2/utils/visualizer.py#L595
                 # https://github.com/facebookresearch/detectron2/blob/cbbc1ce26473cb2a5cc8f58e8ada9ae14cb41052/detectron2/utils/visualizer.py#L59
-        with open("masks.pkl","wb") as f:
-            pickle.dump(mask,f)
-        return predictions, vis_output, mask
+        
+        with open(f"{mask_path}/{image_name}_masks.pkl","wb") as f: ##############경로 맞게 바꿔야함
+            pickle.dump(mask_n_class,f)
+        return predictions, vis_output, mask, pred_classes
 
     def _frame_from_video(self, video):
         while video.isOpened():

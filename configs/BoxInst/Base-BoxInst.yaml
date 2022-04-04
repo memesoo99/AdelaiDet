@@ -26,12 +26,12 @@ MODEL:
 DATASETS:
   TRAIN: ("grape_train",)
   TEST: ("grape_val",)
-  TRAIN: ("plant_train",)
-  TEST: ("plant_val",)
-# TEST:
-#   EVAL_PERIOD: 5000
+#  TRAIN: ("plant_train",)
+#  TEST: ("plant_val",)
+TEST:
+  EVAL_PERIOD: 5000
 SOLVER:
-  IMS_PER_BATCH: 4
+  IMS_PER_BATCH: 2
   BASE_LR: 0.005
   STEPS: (60000, 80000)
   MAX_ITER: 85000

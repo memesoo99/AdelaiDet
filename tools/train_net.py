@@ -1,5 +1,5 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-# python tools/train_net.py --config-file configs/BoxInst/MS_R_50_1x.yaml --num-gpus 0 OUTPUT_DIR training_dir/BoxInst_MS_R_50_1x
+# python tools/train_net.py --config-file /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_sick3/config.yaml --num-gpus 0 OUTPUT_DIR training_dir/BoxInst_MS_R_50_1x_sick4
 # python tools/train_net.py --config-file configs/BoxInst/MS_R_50_1x.yaml --eval-only --num-gpus 0 OUTPUT_DIR ./viz MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x/model_final.pth
 """
 Detection Training Script.

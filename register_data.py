@@ -7,6 +7,6 @@ register_coco_instances("plant_val", {}, json_file="/workspace/PlantDoc-Object-D
 
 metas = MetadataCatalog.get("grape_val")
 print(metas)
-# print(DatasetCatalog.get("grape_train"))
+print(DatasetCatalog.get("grape_train"))
 # Metadata(evaluator_type='coco', image_root='/workspace/grape_label/coco/images', json_file='/workspace/grape_label/coco/train_annotations.json', name=grape_train,
 # thing_classes=['grape'], thing_dataset_id_to_contiguous_id={1: 0})

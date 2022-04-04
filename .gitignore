@@ -38,6 +38,8 @@ dist/
 .python-version
 
 # project dirs
+/viz
+/wandb
 /datasets/coco
 /datasets/lvis
 /datasets/pic

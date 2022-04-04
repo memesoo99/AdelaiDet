@@ -1,5 +1,5 @@
 [DEFAULT]
-OUTPUT_FOLDER : ./viz/results/result0228.csv
+OUTPUT_FOLDER : ./viz/results/result0307.csv
 OUTPUT : true
 # outputcsv 저장 여부
 MASK : true
