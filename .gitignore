@@ -49,6 +49,7 @@ dist/
 /example_inputs
 /debug
 /weights
+/training_dir
 /export
 eval.sh
 
