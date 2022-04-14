@@ -4,6 +4,7 @@ import json
 import imageio
 import atexit
 import bisect
+import os
 import multiprocessing as mp
 from collections import deque
 import cv2
@@ -58,6 +59,7 @@ class VisualizationDemo(object):
             predictions (dict): the output of the model.
             vis_output (VisImage): the visualized image output.
         """
+        os.makedirs(mask_path,exist_ok = True)
         image_name = image_path.split('/')[-1].split('.')[0]
         vis_output = None
 

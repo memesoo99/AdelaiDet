@@ -93,7 +93,7 @@ if __name__ == "__main__":
     args = get_parser().parse_args()
     csv_cfg = configparser.ConfigParser()  ## 클래스 객체 생성
     csv_cfg.read('/workspace/AdelaiDet/config_csv.yaml')
-    args.output = './viz'
+    # args.output = './viz'
     # csv_output_folder = f'./viz/results/{args.code}.csv'
     csv_output_folder = csv_cfg.get("DEFAULT","OUTPUT_FOLDER")
     logger = setup_logger()
