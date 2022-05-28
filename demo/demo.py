@@ -4,7 +4,6 @@
 # python demo/demo.py --input /workspace/regression_data/images1 --output viz/grape_from_real --mask-path /workspace/regression_data/masks --opts MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_sick4/model_0084999.pth
 # python demo/demo.py --input /workspace/AdelaiDet/catnip_original.png --output viz --opts MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_plant3/model_0004999.pth
 
-# 서버 바꿈에 따라 바꿔야되는 경로 : 33번쨰 줄에 config 경로
 import argparse
 import glob
 import multiprocessing as mp
@@ -30,9 +29,10 @@ WINDOW_NAME = "COCO detections"
 def setup_cfg(args):
     # load config from file and command-line arguments
     cfg = get_cfg()
-    args.config_file = '/workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_sick4/config.yaml' ############################돌리는 OS에 따라 경로 수정필요
+    args.config_file = 'training_dir/BoxInst_MS_R_50_1x_sick4/config.yaml' ############################돌리는 OS에 따라 경로 수정필요
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+
     # Set score_threshold for builtin models
     cfg.MODEL.RETINANET.SCORE_THRESH_TEST = args.confidence_threshold
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = args.confidence_threshold
@@ -47,7 +47,7 @@ def get_parser():
     parser = argparse.ArgumentParser(description="Detectron2 Demo")
     parser.add_argument(
         "--config-file",
-        default="configs/quick_schedules/e2e_mask_rcnn_R_50_FPN_inference_acc_test.yaml",
+        default= "configs/quick_schedules/e2e_mask_rcnn_R_50_FPN_inference_acc_test.yaml",
         metavar="FILE",
         help="path to config file",
     )
@@ -73,11 +73,6 @@ def get_parser():
         default=[],
         nargs=argparse.REMAINDER,
     )
-    # parser.add_argument(
-    #     "--output-csv-config",
-    #     help="output file path and number of instances as csv",
-    #     default = '/workspace/AdelaiDet/config_csv.yaml'
-    # )
     parser.add_argument(
         "--code",
         help="the name of the report",
@@ -91,10 +86,8 @@ def get_parser():
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
-    csv_cfg = configparser.ConfigParser()  ## 클래스 객체 생성
+    csv_cfg = configparser.ConfigParser()  
     csv_cfg.read('/workspace/AdelaiDet/config_csv.yaml')
-    # args.output = './viz'
-    # csv_output_folder = f'./viz/results/{args.code}.csv'
     csv_output_folder = csv_cfg.get("DEFAULT","OUTPUT_FOLDER")
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
@@ -125,7 +118,6 @@ if __name__ == "__main__":
             img = read_image(path, format="BGR")
             start_time = time.time()
             predictions, visualized_output, mask, pred_classes = demo.run_on_image(img, path,mask_path)
-            # mask -> unit8 binary mask for every instances. 만약 class가 여러개라면 pred_claass도 같이 받아야함. 1 인 부분이 class
 
             img_path = path
             instance_num = len(predictions["instances"])
