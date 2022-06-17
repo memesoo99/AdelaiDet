@@ -1,8 +1,4 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-# python demo/demo.py --input /workspace/PlantDoc-Object-Detection-Dataset/TEST/vaccinium-angustifolium-low-bush-blueberry_0830_124221.jpg --output viz --opts MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_plant3/model_0004999.pth --output-csv-config /workspace/AdelaiDet/config_csv.yaml
-# python demo/demo.py --input /workspace/grape_label/test/9.png /workspace/grape_label/coco/test/110.jpeg --output viz/grape_from_real --mask-path /workspace/regression_data/masks --opts MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_sick4/model_0084999.pth
-# python demo/demo.py --input /workspace/regression_data/images1 --output viz/grape_from_real --mask-path /workspace/regression_data/masks --opts MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_sick4/model_0084999.pth
-# python demo/demo.py --input /workspace/AdelaiDet/catnip_original.png --output viz --opts MODEL.WEIGHTS /workspace/AdelaiDet/training_dir/BoxInst_MS_R_50_1x_plant3/model_0004999.pth
 
 import argparse
 import glob
@@ -25,11 +21,10 @@ from adet.config import get_cfg
 WINDOW_NAME = "COCO detections"
 
 
-
-def setup_cfg(args):
+def setup_cfg(args, csv_cfg):
     # load config from file and command-line arguments
     cfg = get_cfg()
-    args.config_file = 'training_dir/BoxInst_MS_R_50_1x_sick4/config.yaml' ############################돌리는 OS에 따라 경로 수정필요
+    args.config_file = csv_cfg.get("DEFAULT","pretrain_config")
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
 
@@ -41,7 +36,6 @@ def setup_cfg(args):
     cfg.MODEL.PANOPTIC_FPN.COMBINE.INSTANCES_CONFIDENCE_THRESH = args.confidence_threshold
     cfg.freeze()
     return cfg
-
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Detectron2 Demo")
@@ -79,30 +73,32 @@ def get_parser():
         default='result_demo_0225'
     )
 
-
     return parser
 
 
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
+
     csv_cfg = configparser.ConfigParser()  
-    csv_cfg.read('/workspace/AdelaiDet/config_csv.yaml')
-    csv_output_folder = csv_cfg.get("DEFAULT","OUTPUT_FOLDER")
+    csv_cfg.read('../config_csv.yaml')
+
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
+    csv_output_folder = csv_cfg.get("DEFAULT","OUTPUT_FOLDER")
     csv_true = False
     if csv_cfg.get("DEFAULT", "OUTPUT"):
         f = open(csv_output_folder,'w', newline='')
         wr = csv.writer(f)
         csv_true = True
+
     mask_true = False
     if csv_cfg.get("DEFAULT","MASK"):
         mask_true = True
     path_true = False
     if csv_cfg.get("DEFAULT", "IMAGE_PATH"):
         path_true = True
-    cfg = setup_cfg(args)
+    cfg = setup_cfg(args, csv_cfg)
 
     demo = VisualizationDemo(cfg)
     mask_path = args.mask_path
@@ -126,7 +122,6 @@ if __name__ == "__main__":
                 row.append(path)
                 row.append(instance_num)
             if mask_true:
-                row.append(mask)
                 row.append(pred_classes)
                 
             logger.info(
@@ -140,7 +135,8 @@ if __name__ == "__main__":
                     assert os.path.isdir(args.output), args.output
                     out_filename = os.path.join(args.output, os.path.basename(path))
                 else:
-                    assert len(args.input) == 1, "Please specify a directory with args.output"
+                    os.mkdir(args.output)
+                    # assert len(args.input) == 1, "Please specify a directory with args.output"
                     out_filename = args.output
                 visualized_output.save(out_filename)
                 print(f"visualized output saved to {out_filename}")
