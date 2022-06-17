@@ -18,10 +18,8 @@ import pycocotools.mask as maskutil
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.modeling import build_model
 from detectron2.data import MetadataCatalog
-# from detectron2.engine.defaults import DefaultPredictor
 from detectron2.utils.video_visualizer import VideoVisualizer
-from detectron2.utils.visualizer import ColorMode, Visualizer
-# 이 위에 코드 살펴봐야 result어떻게 활용하ㄴ지 알수 있을듯
+from detectron2.utils.visualizer import ColorMode, Visualizer, GenericMask
 from adet.utils.visualizer import TextVisualizer
 np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 
@@ -65,8 +63,6 @@ class VisualizationDemo(object):
 
         predictions = self.predictor(image)
     
-        # print(type(predictions))
-        
         # Convert image from OpenCV BGR format to Matplotlib RGB format.
         image = image[:, :, ::-1]
         if self.vis_text:
@@ -85,22 +81,23 @@ class VisualizationDemo(object):
             if "sem_seg" in predictions:
                 vis_output = visualizer.draw_sem_seg(
                     predictions["sem_seg"].argmax(dim=0).to(self.cpu_device))
-            if "instances" in predictions: #############
+            if "instances" in predictions: 
                 instances = predictions["instances"].to(self.cpu_device)
-                vis_output, mask = visualizer.draw_instance_predictions(predictions=instances)
+
+                if instances.has("pred_masks"):
+                    mask = np.asarray(instances.pred_masks)
+                    mask = [GenericMask(x, visualizer.output.height, visualizer.output.width) for x in mask]
+                else:
+                    mask = None
+
+                vis_output = visualizer.draw_instance_predictions(predictions=instances)
                 pred_classes = instances.pred_classes
                 masks = []
-                # temp = []
-                # first_mask = mask[0].mask
                 for i in range(len(mask)):
                     masks.append(mask[i].mask)
                 mask_n_class = [masks, torch.count_nonzero(pred_classes).item()]
-                # print(mask_n_class[1])
-                print(len(masks))
-                # https://github.com/facebookresearch/detectron2/blob/cbbc1ce26473cb2a5cc8f58e8ada9ae14cb41052/detectron2/utils/visualizer.py#L595
-                # https://github.com/facebookresearch/detectron2/blob/cbbc1ce26473cb2a5cc8f58e8ada9ae14cb41052/detectron2/utils/visualizer.py#L59
         
-        with open(f"{mask_path}/{image_name}_masks.pkl","wb") as f: ##############경로 맞게 바꿔야함
+        with open(f"{mask_path}/{image_name}_masks.pkl","wb") as f: 
             pickle.dump(mask_n_class,f)
         return predictions, vis_output, mask, pred_classes
 
