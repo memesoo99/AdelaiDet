@@ -1,8 +1,0 @@
-[DEFAULT]
-OUTPUT_FOLDER : ./viz/results/result0307.csv
-OUTPUT : true
-# outputcsv 저장 여부
-MASK : true
-# binary mask도 출력할지 여부
-IMAGE_PATH : true
-# visualize된 이미지 경로
